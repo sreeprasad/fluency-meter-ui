@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Fluency Meter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 0 auto;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #results {
+            margin-top: 30px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        #result-score, #result-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .loading {
+            text-align: center;
+            display: none;
+            margin-top: 20px;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hint {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Language Fluency Meter</h1>
+    
+    <p>Enter text to measure its fluency or "naturalness" using perplexity scoring.</p>
+    
+    <textarea id="text-input" placeholder="Type or paste text here..."></textarea>
+    
+    <button onclick="getScore()">Check Fluency</button>
+    
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>Analyzing text...</p>
+    </div>
+    
+    <div id="results">
+        <div id="result-score">Perplexity: </div>
+        <div id="result-label">Fluency: </div>
+        <p>Lower perplexity scores indicate more fluent, natural language.</p>
+    </div>
+    
+    <div class="hint">
+        <p><strong>About:</strong> This tool uses perplexity (PPL) to measure how "surprised" a language model is by text. Lower perplexity scores suggest more natural, human-like writing.</p>
+        <p><strong>Try it with:</strong> News articles (should score low), random word jumbles (should score high), or AI-generated text (often scores somewhere in between).</p>
+        <p>Inspired by the perplexity-based scoring from the LongCodeZip paper (arXiv:2510.00446).</p>
+    </div>
+
+    <script>
+        const API_URL = "https://sreeprasad1-fluency-meter.hf.space/score";
+        
+        async function getScore() {
+            const userText = document.getElementById("text-input").value.trim();
+            
+            if (userText.length < 5) {
+                alert("Please enter at least 5 characters of text.");
+                return;
+            }
+            
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("results").style.display = "none";
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ text: userText })
+                });
+                
+                if (!response.ok) {
+                    throw new Error("API request failed");
+                }
+                
+                const data = await response.json();
+                
+                document.getElementById("result-score").innerText = "Perplexity: " + data.perplexity.toFixed(2);
+                document.getElementById("result-label").innerText = "Fluency: " + data.label;
+                
+                document.getElementById("results").style.display = "block";
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Sorry, there was an error analyzing the text. Please try again.");
+            } finally {
+                document.getElementById("loading").style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
