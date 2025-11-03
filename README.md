@@ -59,10 +59,6 @@ The backend uses the `distilgpt2` model from Hugging Face Transformers to calcul
 - **AI-generated text**: Often scores somewhere in between
 - **Non-native writing**: May have higher scores depending on fluency
 
-## Development
-
-This project was completed in under 4 hours as a practical demonstration of applying ML concepts to web applications.
-
 ## Future Improvements
 
 - Visual graphing of perplexity distribution
